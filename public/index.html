@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang='pt-br'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Meu Futebol Live V6</title>
+<style>
+:root{
+--bg:#f3f6fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#dbe3ee;--blue:#2563eb;
+}
+.dark{
+--bg:#0f172a;--card:#111827;--text:#f3f4f6;--muted:#9ca3af;--line:#243041;
+}
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);transition:.2s}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px;background:var(--card);border-bottom:1px solid var(--line)}
+button{background:var(--blue);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+.container{max-width:1200px;margin:auto;padding:20px}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+.live{border:2px solid #ef4444}
+.score{font-size:34px;font-weight:900;color:var(--blue)}
+.analysis{margin-top:15px;padding:14px;border-radius:14px;background:rgba(37,99,235,.08);line-height:1.5}
+.bar{height:12px;background:#d1d5db;border-radius:999px;overflow:hidden;margin-top:4px}
+.fill{height:100%;background:linear-gradient(90deg,#22c55e,#3b82f6)}
+.row{margin-top:14px}
+.momentum{margin-top:14px;font-size:24px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>⚽ Meu Futebol Live V6</h1>
+<button onclick='toggleTheme()'>🌙 Tema</button>
+</header>
+
+<div class='container'>
+<div class='games'>
+
+<div class='card live'>
+<h3>Palmeiras x Flamengo</h3>
+<div class='score'>2 x 1</div>
+
+<div class='analysis'>
+🔥 Palmeiras pressionando acima do esperado.<br><br>
+✔ Joga em casa<br>
+✔ Precisa vencer<br>
+✔ 16 finalizações<br>
+✔ 8 escanteios<br><br>
+
+🎯 Tendência de mais chutes<br>
+🚩 Tendência ofensiva forte
+</div>
+
+<div class='row'>
+<b>Chutes — 16 x 7</b>
+<div class='bar'><div class='fill' style='width:78%'></div></div>
+</div>
+
+<div class='row'>
+<b>Escanteios — 8 x 2</b>
+<div class='bar'><div class='fill' style='width:80%'></div></div>
+</div>
+
+<div class='row'>
+<b>Posse — 63% x 37%</b>
+<div class='bar'><div class='fill' style='width:63%'></div></div>
+</div>
+
+<div class='momentum'>
+🟢🟢🟢🟢🟢⚪⚪
+</div>
+
+</div>
+
+<div class='card'>
+<h3>Fluminense x Bolívar</h3>
+<div class='score'>Pré-jogo</div>
+
+<div class='analysis'>
+🔥 Pressão ofensiva esperada MUITO ALTA.<br><br>
+✔ Precisa vencer por saldo<br>
+✔ Joga em casa<br>
+✔ Média alta de chutes<br><br>
+
+🚩 Tendência de muitos escanteios
+</div>
+
+<div class='row'>
+<b>Pressão ofensiva — 89/100</b>
+<div class='bar'><div class='fill' style='width:89%'></div></div>
+</div>
+
+<div class='momentum'>
+🔥🔥🔥🔥🔥
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+function toggleTheme(){
+document.body.classList.toggle('dark');
+localStorage.setItem('theme',
+document.body.classList.contains('dark') ? 'dark':'light');
+}
+if(localStorage.getItem('theme')==='dark'){
+document.body.classList.add('dark');
+}
+</script>
+
+</body>
+</html>
