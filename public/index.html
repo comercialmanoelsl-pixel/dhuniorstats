@@ -1,0 +1,821 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DhuniorStats: Futebol Ao Vivo, Estatísticas e Tendências em Tempo Real</title>
+<meta name="description" content="Acompanhe futebol ao vivo com estatísticas, pressão ofensiva, escanteios, chutes, posse de bola e análise inteligente em tempo real.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050b12;
+  --bg2:#071321;
+  --side:#07111d;
+  --card:#0d1a2a;
+  --card2:#101f33;
+  --glass:rgba(13,26,42,.82);
+  --line:rgba(148,163,184,.14);
+  --line2:rgba(148,163,184,.24);
+  --text:#f8fafc;
+  --muted:#93a4ba;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --red:#ef1f2d;
+  --red2:#991b1b;
+  --yellow:#facc15;
+  --blue:#38bdf8;
+  --orange:#fb923c;
+  --shadow:0 18px 60px rgba(0,0,0,.38);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 75% 0%, rgba(239,31,45,.12), transparent 32%),
+    radial-gradient(circle at 25% 0%, rgba(34,197,94,.11), transparent 28%),
+    linear-gradient(180deg,var(--bg),#030712);
+}
+
+.app{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:270px 1fr;
+}
+
+.sidebar{
+  min-height:100vh;
+  background:linear-gradient(180deg,#06101b,#030811);
+  border-right:1px solid var(--line);
+  padding:28px 22px;
+  position:sticky;
+  top:0;
+}
+
+.brand{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:34px;
+}
+
+.infinity{
+  width:86px;
+  height:42px;
+  position:relative;
+  margin-bottom:4px;
+}
+
+.infinity:before{
+  content:"∞";
+  font-size:74px;
+  line-height:42px;
+  font-weight:900;
+  letter-spacing:-10px;
+  color:var(--red);
+  text-shadow:0 0 24px rgba(239,31,45,.55);
+}
+
+.brand-title{
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:-.7px;
+}
+
+.brand-title span{
+  color:var(--red);
+}
+
+.slogan{
+  color:#cbd5e1;
+  font-size:13px;
+}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:14px 14px;
+  border-radius:14px;
+  color:#cbd5e1;
+  font-weight:600;
+  transition:.2s;
+}
+
+.nav-item.active{
+  background:linear-gradient(90deg,rgba(239,31,45,.22),rgba(15,23,42,.1));
+  color:white;
+  border:1px solid rgba(239,31,45,.22);
+}
+
+.nav-item:hover{
+  background:rgba(255,255,255,.04);
+}
+
+.theme-box{
+  margin-top:34px;
+  border:1px solid var(--line2);
+  border-radius:16px;
+  padding:13px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#cbd5e1;
+}
+
+.switch{
+  background:#111827;
+  width:88px;
+  height:40px;
+  border-radius:999px;
+  padding:5px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.knob{
+  width:30px;
+  height:30px;
+  background:linear-gradient(135deg,#ef4444,#7f1d1d);
+  border-radius:50%;
+  box-shadow:0 0 18px rgba(239,31,45,.5);
+}
+
+.pro{
+  margin-top:34px;
+  padding:20px;
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(127,29,29,.35),rgba(15,23,42,.85));
+  border:1px solid rgba(239,68,68,.25);
+}
+
+.pro b{display:block;margin-bottom:12px}
+.pro p{color:#cbd5e1;font-size:14px;line-height:1.55}
+.pro button{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:12px;
+  background:linear-gradient(135deg,#ef1f2d,#991b1b);
+  color:white;
+  font-weight:800;
+}
+
+.main{
+  padding:30px;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:24px;
+}
+
+.competition{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.select-pill{
+  background:rgba(15,23,42,.78);
+  border:1px solid var(--line);
+  padding:12px 16px;
+  border-radius:13px;
+  font-weight:800;
+}
+
+.round{
+  color:var(--muted);
+  font-weight:500;
+}
+
+.top-actions{
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+
+.icon-btn,.fav-btn{
+  height:46px;
+  border:1px solid var(--line);
+  background:rgba(15,23,42,.85);
+  color:white;
+  border-radius:14px;
+  padding:0 16px;
+  font-weight:800;
+}
+
+.content{
+  display:grid;
+  grid-template-columns:minmax(650px,1fr) 360px;
+  gap:22px;
+}
+
+.hero{
+  position:relative;
+  min-height:330px;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.1);
+  background:
+    linear-gradient(90deg,rgba(34,197,94,.22),transparent 45%,rgba(239,31,45,.22)),
+    radial-gradient(circle at center, rgba(255,255,255,.08), transparent 38%),
+    linear-gradient(180deg,#0b1726,#07101b);
+  box-shadow:var(--shadow);
+}
+
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:48px 48px;
+  opacity:.22;
+}
+
+.hero-inner{
+  position:relative;
+  z-index:1;
+  height:100%;
+  padding:34px;
+  display:grid;
+  grid-template-columns:1fr 220px 1fr;
+  align-items:center;
+}
+
+.team-box{
+  text-align:center;
+}
+
+.crest{
+  width:118px;
+  height:118px;
+  margin:0 auto 18px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:42px;
+  color:white;
+  border:3px solid rgba(255,255,255,.72);
+  box-shadow:0 0 36px rgba(255,255,255,.18);
+}
+
+.crest.green{
+  background:radial-gradient(circle,#22c55e,#065f46);
+}
+
+.crest.red{
+  border-radius:18px;
+  background:linear-gradient(180deg,#111 0 22%,#d00 22% 42%,#111 42% 62%,#d00 62% 82%,#111 82%);
+}
+
+.team-name{
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+.center-score{
+  text-align:center;
+}
+
+.live-badge{
+  display:inline-flex;
+  background:linear-gradient(135deg,#ef4444,#991b1b);
+  color:white;
+  font-weight:900;
+  padding:8px 18px;
+  border-radius:999px;
+  font-size:13px;
+  margin-bottom:14px;
+  box-shadow:0 0 22px rgba(239,68,68,.38);
+}
+
+.period{
+  color:#cbd5e1;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+.minute{
+  color:#22c55e;
+  font-size:30px;
+  font-weight:900;
+  margin-bottom:12px;
+}
+
+.score{
+  font-size:78px;
+  font-weight:950;
+  letter-spacing:-4px;
+}
+
+.scorers{
+  margin-top:22px;
+  color:#cbd5e1;
+  font-size:14px;
+  line-height:1.8;
+}
+
+.venue{
+  margin-top:8px;
+  color:#cbd5e1;
+  font-size:14px;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-top:18px;
+}
+
+.stat-card{
+  background:linear-gradient(180deg,rgba(13,26,42,.94),rgba(8,17,30,.94));
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:18px;
+}
+
+.stat-title{
+  color:white;
+  font-weight:900;
+  font-size:14px;
+  display:flex;
+  gap:9px;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.stat-values{
+  display:flex;
+  justify-content:space-between;
+  font-size:28px;
+  font-weight:900;
+}
+
+.compare-bar{
+  margin-top:10px;
+  height:8px;
+  background:#1e293b;
+  border-radius:999px;
+  overflow:hidden;
+  display:flex;
+}
+
+.compare-bar .home{
+  background:var(--green);
+  height:100%;
+}
+
+.compare-bar .away{
+  background:var(--red);
+  height:100%;
+}
+
+.panel{
+  background:linear-gradient(180deg,rgba(13,26,42,.92),rgba(7,16,28,.92));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.momentum{
+  margin-top:16px;
+}
+
+.momentum-chart{
+  height:150px;
+  display:flex;
+  align-items:end;
+  gap:4px;
+  padding:12px 10px 0;
+  border-radius:12px;
+  background:rgba(0,0,0,.15);
+  border:1px solid rgba(255,255,255,.05);
+}
+
+.bar-pos,.bar-neg{
+  width:10px;
+  border-radius:4px 4px 0 0;
+}
+
+.bar-pos{background:linear-gradient(180deg,#22c55e,#15803d)}
+.bar-neg{background:linear-gradient(180deg,#ef4444,#991b1b)}
+
+.below{
+  display:grid;
+  grid-template-columns:1fr 1.4fr;
+  gap:16px;
+  margin-top:16px;
+}
+
+.detail-line{
+  display:grid;
+  grid-template-columns:56px 1fr 56px;
+  gap:12px;
+  align-items:center;
+  margin:16px 0;
+}
+
+.detail-line .num{
+  font-weight:900;
+  font-size:17px;
+}
+
+.mini-line{
+  height:8px;
+  border-radius:999px;
+  background:#1e293b;
+  overflow:hidden;
+}
+
+.mini-line i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,#22c55e,#ef4444);
+}
+
+.heatmap{
+  height:190px;
+  border-radius:12px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(90deg,rgba(34,197,94,.12),transparent 48%,rgba(239,31,45,.14)),
+    #07111d;
+}
+
+.heatmap:before{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border:1px solid rgba(255,255,255,.28);
+}
+
+.blob{
+  position:absolute;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  filter:blur(18px);
+  opacity:.8;
+}
+
+.blob.green{background:#84cc16}
+.blob.yellow{background:#facc15}
+.blob.red{background:#ef4444}
+
+.right-col{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.ai-card{
+  padding:24px;
+}
+
+.ai-title{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  color:#dbeafe;
+  font-weight:900;
+  letter-spacing:.3px;
+}
+
+.ai-box{
+  margin-top:20px;
+  padding:20px;
+  border-radius:14px;
+  background:rgba(2,6,23,.35);
+  border:1px solid var(--line);
+}
+
+.ai-box h2{
+  margin:0 0 12px;
+  font-size:21px;
+}
+
+.ai-box p{
+  color:#cbd5e1;
+  line-height:1.6;
+}
+
+.ai-list{
+  margin-top:18px;
+  display:grid;
+  gap:10px;
+  color:#dbeafe;
+}
+
+.trend{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.trend-icon{
+  font-size:38px;
+}
+
+.tag{
+  background:rgba(34,197,94,.18);
+  color:#86efac;
+  padding:7px 13px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:12px;
+}
+
+.gauge{
+  height:160px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.gauge-circle{
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  background:conic-gradient(#22c55e 0 87%,#1e293b 87% 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.gauge-inner{
+  width:112px;
+  height:112px;
+  border-radius:50%;
+  background:#0b1726;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.gauge-inner b{
+  font-size:42px;
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:12px;
+  align-items:center;
+  margin-top:10px;
+}
+
+.form-balls{
+  display:flex;
+  gap:7px;
+}
+
+.result{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+}
+
+.v{background:#16a34a}
+.e{background:#eab308;color:#111}
+.d{background:#dc2626}
+
+.footer{
+  color:var(--muted);
+  font-size:13px;
+  text-align:right;
+  padding:18px 0 0;
+}
+
+@media(max-width:1280px){
+  .content{grid-template-columns:1fr}
+  .right-col{grid-template-columns:repeat(2,1fr);display:grid}
+}
+
+@media(max-width:980px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{padding:18px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-inner{grid-template-columns:1fr;gap:24px}
+  .content{grid-template-columns:1fr}
+}
+
+@media(max-width:640px){
+  .topbar{align-items:flex-start;flex-direction:column}
+  .stats-grid{grid-template-columns:1fr}
+  .below{grid-template-columns:1fr}
+  .right-col{display:flex}
+  .score{font-size:56px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="infinity"></div>
+      <div class="brand-title">Dhunior<span>Stats</span></div>
+      <div class="slogan">Além das estatísticas</div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-item active">📡 Ao Vivo</div>
+      <div class="nav-item">🔎 Radar de Jogos</div>
+      <div class="nav-item">📈 Análises</div>
+      <div class="nav-item">☆ Favoritos</div>
+      <div class="nav-item">🔔 Alertas</div>
+      <div class="nav-item">🛡️ Times</div>
+      <div class="nav-item">🏆 Campeonatos</div>
+      <div class="nav-item">🔀 Comparar</div>
+      <div class="nav-item">⚙️ Configurações</div>
+    </nav>
+
+    <div class="theme-box">
+      <span>Tema</span>
+      <div class="switch"><div class="knob"></div></div>
+    </div>
+
+    <div class="pro">
+      <b>⚡ Upgrade Pro</b>
+      <p>Tenha análises ainda mais completas, alertas e rankings inteligentes.</p>
+      <button>Ver planos</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="competition">
+        <div class="select-pill">🇧🇷 Brasileirão Série A</div>
+        <div class="round">Rodada 10</div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn">🔔</button>
+        <button class="fav-btn">☆ Meus Jogos</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <section>
+        <div class="hero">
+          <div class="hero-inner">
+            <div class="team-box">
+              <div class="crest green">P</div>
+              <div class="team-name">PALMEIRAS</div>
+              <div class="scorers">18' P. Veiga ⚽<br>52' Rony ⚽</div>
+            </div>
+
+            <div class="center-score">
+              <div class="live-badge">AO VIVO</div>
+              <div class="period">2º TEMPO</div>
+              <div class="minute">67'</div>
+              <div class="score">2 x 1</div>
+              <div class="venue">🏟️ Allianz Parque</div>
+            </div>
+
+            <div class="team-box">
+              <div class="crest red">F</div>
+              <div class="team-name">FLAMENGO</div>
+              <div class="scorers">33' G. Arrascaeta ⚽</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-title">🎯 CHUTES</div>
+            <div class="stat-values"><span>16</span><span>7</span></div>
+            <div class="compare-bar"><div class="home" style="width:70%"></div><div class="away" style="width:30%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">🥅 CHUTES NO GOL</div>
+            <div class="stat-values"><span>7</span><span>3</span></div>
+            <div class="compare-bar"><div class="home" style="width:70%"></div><div class="away" style="width:30%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">◔ POSSE DE BOLA</div>
+            <div class="stat-values"><span>63%</span><span>37%</span></div>
+            <div class="compare-bar"><div class="home" style="width:63%"></div><div class="away" style="width:37%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">🚩 ESCANTEIOS</div>
+            <div class="stat-values"><span>8</span><span>2</span></div>
+            <div class="compare-bar"><div class="home" style="width:80%"></div><div class="away" style="width:20%"></div></div>
+          </div>
+        </div>
+
+        <div class="panel momentum">
+          <b>MOMENTUM DA PARTIDA ⓘ</b>
+          <div class="momentum-chart">
+            <div class="bar-pos" style="height:18px"></div><div class="bar-pos" style="height:26px"></div><div class="bar-pos" style="height:34px"></div><div class="bar-pos" style="height:22px"></div><div class="bar-pos" style="height:46px"></div>
+            <div class="bar-neg" style="height:18px"></div><div class="bar-neg" style="height:26px"></div>
+            <div class="bar-pos" style="height:38px"></div><div class="bar-pos" style="height:58px"></div><div class="bar-pos" style="height:36px"></div><div class="bar-pos" style="height:65px"></div>
+            <div class="bar-neg" style="height:40px"></div><div class="bar-neg" style="height:28px"></div><div class="bar-neg" style="height:18px"></div>
+            <div class="bar-pos" style="height:34px"></div><div class="bar-pos" style="height:44px"></div>
+            <div class="bar-neg" style="height:20px"></div><div class="bar-neg" style="height:36px"></div><div class="bar-neg" style="height:48px"></div>
+            <div class="bar-pos" style="height:50px"></div><div class="bar-pos" style="height:60px"></div><div class="bar-pos" style="height:22px"></div>
+          </div>
+        </div>
+
+        <div class="below">
+          <div class="panel">
+            <b>ESTATÍSTICAS DETALHADAS</b>
+            <div class="detail-line"><span class="num">342</span><div><div>Passes certos</div><div class="mini-line"><i style="width:63%"></i></div></div><span class="num">198</span></div>
+            <div class="detail-line"><span class="num">8</span><div><div>Faltas</div><div class="mini-line"><i style="width:40%"></i></div></div><span class="num">12</span></div>
+            <div class="detail-line"><span class="num">1</span><div><div>Cartões amarelos</div><div class="mini-line"><i style="width:42%"></i></div></div><span class="num">2</span></div>
+            <div class="detail-line"><span class="num">1</span><div><div>Impedimentos</div><div class="mini-line"><i style="width:100%"></i></div></div><span class="num">0</span></div>
+          </div>
+
+          <div class="panel">
+            <b>MAPA DE ATAQUES</b>
+            <div class="heatmap">
+              <div class="blob green" style="left:70px;top:35px"></div>
+              <div class="blob yellow" style="left:120px;top:75px"></div>
+              <div class="blob green" style="left:170px;top:60px"></div>
+              <div class="blob red" style="right:90px;top:55px"></div>
+              <div class="blob red" style="right:130px;top:90px"></div>
+              <div class="blob yellow" style="right:170px;top:75px"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">🔴 Atualizado agora há poucos segundos</div>
+      </section>
+
+      <aside class="right-col">
+        <div class="panel ai-card">
+          <div class="ai-title">🧠 ANÁLISE INTELIGENTE</div>
+          <div class="ai-box">
+            <h2>🔥 Palmeiras aumentando muito a pressão!</h2>
+            <p>O Palmeiras voltou do intervalo em alta intensidade, chegando com muito mais perigo ao gol adversário.</p>
+            <div class="ai-list">
+              <div>✓ Mais finalizações</div>
+              <div>↻ Mais posse de bola</div>
+              <div>⚑ Mais escanteios</div>
+              <div>➤ Flamengo recuado</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel trend">
+          <div>
+            <div style="color:#94a3b8;font-size:12px;font-weight:800">TENDÊNCIA</div>
+            <h3>Mais escanteios para o Palmeiras</h3>
+          </div>
+          <div class="tag">ALTA</div>
+        </div>
+
+        <div class="panel">
+          <b>PRESSÃO OFENSIVA</b>
+          <div class="gauge">
+            <div class="gauge-circle"><div class="gauge-inner"><b>87</b><span>/100</span></div></div>
+          </div>
+          <div style="text-align:center;color:#22c55e;font-weight:900">MUITO ALTA</div>
+          <div style="text-align:center;color:#cbd5e1;margin-top:8px">Palmeiras</div>
+        </div>
+
+        <div class="panel">
+          <b>ÚLTIMOS 5 JOGOS</b>
+          <div class="form-row"><div class="crest green" style="width:30px;height:30px;font-size:12px;border-width:1px">P</div><div class="form-balls"><div class="result v">V</div><div class="result v">V</div><div class="result e">E</div><div class="result v">V</div><div class="result v">V</div></div></div>
+          <div class="form-row"><div class="crest red" style="width:30px;height:30px;font-size:12px;border-radius:6px;border-width:1px">F</div><div class="form-balls"><div class="result v">V</div><div class="result d">D</div><div class="result v">V</div><div class="result e">E</div><div class="result d">D</div></div></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</body>
+</html>
