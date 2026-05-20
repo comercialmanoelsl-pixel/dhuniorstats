@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meu Futebol Live</title>
+<style>
+:root{--bg:#08111f;--card:#101827;--soft:#1f2a3d;--text:#e5e7eb;--muted:#94a3b8;--green:#22c55e;--red:#ef4444;--yellow:#facc15;--blue:#38bdf8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid #1f2937;padding:14px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:20px;margin:0}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,select,button{border:0;border-radius:10px;padding:10px;background:#1f2937;color:#fff}
+button{background:var(--green);color:#052e13;font-weight:700;cursor:pointer}.btn2{background:var(--blue);color:#082f49}
+main{display:grid;grid-template-columns:1fr 280px;gap:14px;padding:14px}.ad{background:#111827;border:1px dashed #64748b;border-radius:14px;padding:14px;color:#94a3b8;min-height:180px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}.card{background:var(--card);border:1px solid #243449;border-radius:16px;padding:12px}
+.card.live{border-color:var(--red)}.league{font-size:12px;color:var(--muted);margin-bottom:8px}.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.team{font-weight:700}.away{text-align:right}.score{font-size:24px;color:var(--yellow);font-weight:800;white-space:nowrap}
+.meta{margin-top:8px;color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap}.pill{padding:4px 8px;border-radius:999px;background:var(--soft)}
+.live .pill{background:#3b1212;color:#fecaca}.details{display:none;margin-top:12px;border-top:1px solid #243449;padding-top:10px;max-height:650px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}th,td{border-bottom:1px solid #243449;text-align:left;padding:6px;vertical-align:top}th{color:#cbd5e1}
+.small{font-size:12px;color:var(--muted)}.error{color:#fecaca;background:#3b1212;padding:8px;border-radius:10px;margin:8px 0}.ok{color:#bbf7d0;background:#052e16;padding:8px;border-radius:10px;margin:8px 0}
+@media(max-width:900px){main{grid-template-columns:1fr}.ad{display:none}}
+</style>
+</head>
+<body>
+<header><h1>Meu Futebol Live</h1><div class="controls"><input type="text" id="search" placeholder="Buscar time"><input type="date" id="date"><select id="filter"><option value="">Todos</option><option value="live">Só ao vivo</option><option value="pre">Futuros</option><option value="post">Finalizados</option></select><button onclick="loadGames()">Atualizar</button></div></header>
+<main><section><div id="status" class="small">Carregando...</div><div id="games" class="grid"></div></section><aside><div class="ad"><b>Espaço para anúncio</b><br><br>Futuro banner de fornecedor, casa de aposta, empresa local ou parceiro.</div><br><div class="ad"><b>Fontes</b><br><br>Lista: ESPN + API-Football<br>Detalhes: API-Football</div></aside></main>
+<script>
+const dateEl=document.getElementById("date");dateEl.value=new Date().toISOString().slice(0,10);let allGames=[];
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#039;"}[m]))}
+async function loadGames(){const status=document.getElementById("status");status.textContent="Buscando jogos em ESPN + API-Football...";try{const res=await fetch("/api/games?date="+dateEl.value+"&_="+Date.now());const data=await res.json();if(!data.ok)throw new Error(data.error);allGames=data.games||[];status.textContent=`${data.total} jogos encontrados. Fontes: ESPN + API-Football.`;renderGames()}catch(e){status.innerHTML=`<div class="error">Erro: ${esc(e.message||e)}</div>`}}
+function renderGames(){const filter=document.getElementById("filter").value;const q=document.getElementById("search").value.toLowerCase();const box=document.getElementById("games");let games=allGames;if(filter==="live")games=games.filter(g=>g.live);if(filter==="pre")games=games.filter(g=>g.state==="pre");if(filter==="post")games=games.filter(g=>g.state==="post");if(q)games=games.filter(g=>(g.home.name+" "+g.away.name+" "+g.league).toLowerCase().includes(q));box.innerHTML="";games.forEach(g=>{const card=document.createElement("div");card.className="card "+(g.live?"live":"");card.innerHTML=`<div class="league">${esc(g.league)} · ${esc(g.source)}</div><div class="teams"><div class="team">${esc(g.home.name)}</div><div class="score">${esc(g.home.score)} x ${esc(g.away.score)}</div><div class="team away">${esc(g.away.name)}</div></div><div class="meta"><span class="pill">${esc(g.status)}</span><span>${esc(g.minute)}</span><span>${esc(g.time)}</span></div><button class="btn2" style="margin-top:10px">Ver estatísticas completas</button><div class="details"></div>`;card.querySelector("button").onclick=()=>details(g,card.querySelector(".details"));box.appendChild(card)})}
+async function details(g,div){div.style.display="block";div.innerHTML="Buscando estatísticas na API-Football...";try{const res=await fetch("/api/game-details?fixtureId="+encodeURIComponent(g.fixtureId)+"&_="+Date.now());const data=await res.json();if(!data.ok)throw new Error(data.error);let html=`<div class="ok">Fonte usada: ${esc(data.source)} | Fixture: ${esc(data.fixtureId)}</div>`;html+=`<h4>Estatísticas dos times</h4><table><tr><th>Time</th><th>Estatística</th><th>Valor</th></tr>`;(data.teamStats||[]).forEach(s=>html+=`<tr><td>${esc(s.team)}</td><td>${esc(s.label)}</td><td>${esc(s.value)}</td></tr>`);html+=`</table><h4>Eventos</h4><table><tr><th>Min</th><th>Time</th><th>Jogador</th><th>Tipo</th><th>Detalhe</th></tr>`;(data.events||[]).forEach(e=>html+=`<tr><td>${esc(e.minute)}</td><td>${esc(e.team)}</td><td>${esc(e.player||"")}</td><td>${esc(e.type)}</td><td>${esc(e.detail||e.comments||"")}</td></tr>`);html+=`</table><h4>Escalações</h4><table><tr><th>Time</th><th>Jogador</th><th>Nº</th><th>Pos</th><th>Tipo</th></tr>`;(data.lineups||[]).forEach(p=>html+=`<tr><td>${esc(p.team)}</td><td>${esc(p.player)}</td><td>${esc(p.number)}</td><td>${esc(p.pos)}</td><td>${esc(p.type)}</td></tr>`);html+=`</table>`;if((data.teamStats||[]).length===0)html+=`<div class="error">A API não entregou estatísticas para esse jogo.</div>`;div.innerHTML=html}catch(e){div.innerHTML=`<div class="error">Erro: ${esc(e.message||e)}</div>`}}
+document.getElementById("filter").addEventListener("change",renderGames);document.getElementById("search").addEventListener("input",renderGames);loadGames();setInterval(loadGames,60000);
+</script>
+</body></html>
