@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static("public"));
+app.use(express.static("."));
 
 async function sofa(path) {
   const url = "https://www.sofascore.com/api/v1" + path;
