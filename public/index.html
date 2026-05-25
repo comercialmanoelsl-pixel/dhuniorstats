@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DhuniorStats</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body data-theme="light">
+<header class="topbar">
+  <button class="logo logoBtn" onclick="showHome()">Dhunior<span>Stats</span></button>
+  <div class="searchBox"><input class="search" id="searchInput" placeholder="Pesquisar time, liga ou partida"><button class="searchBtn" id="searchBtn" title="Buscar">🔎</button></div>
+  <div class="topActions"><button class="topBtn" onclick="location.href='/sportmonks.html'">SportMonks</button><button class="topBtn" onclick="location.href='/diagnostico.html'">Diagnóstico</button>
+    <button class="topBtn" onclick="showHome()">Início</button>
+    <button class="topBtn" onclick="setLive()">Ao vivo</button>
+    <button class="topBtn" onclick="setFav()">Favoritos</button>
+  </div>
+  <div class="theme"><button id="lightBtn" class="active">Claro</button><button id="darkBtn">Escuro</button></div>
+</header>
+
+<div class="app">
+  <aside class="left card">
+    <div class="filters">
+      <input class="field" type="date" id="dateInput">
+      <select class="field" id="filterInput">
+        <option value="">Todos</option>
+        <option value="live">Ao vivo</option>
+        <option value="pre">Futuros</option>
+        <option value="post">Finalizados</option>
+        <option value="fav">Favoritos</option>
+      </select>
+    </div>
+    <div class="leagueWrap">
+      <button class="qArrow left" onclick="document.querySelector('.quick').scrollBy({left:-170,behavior:'smooth'})">‹</button>
+      <div class="quick">
+        <button data-q="" data-slug="" class="active">⭐ Todos</button>
+        <button data-q="Brasileirão" data-slug="brasileirao">🇧🇷 Brasileirão</button>
+        <button data-q="Libertadores" data-slug="libertadores">🏆 Libertadores</button>
+        <button data-q="Sudamericana" data-slug="sudamericana">🌎 Sul-Americana</button>
+        <button data-q="Premier" data-slug="premier">🏴 Premier</button>
+        <button data-q="Serie A" data-slug="seriea">🇮🇹 Serie A</button>
+        <button data-q="La Liga" data-slug="laliga">🇪🇸 La Liga</button>
+      </div>
+      <button class="qArrow right" onclick="document.querySelector('.quick').scrollBy({left:170,behavior:'smooth'})">›</button>
+    </div>
+    <div class="matchList" id="matchList"></div>
+    <button class="btn" id="refreshBtn" style="margin:7px 11px 11px">Atualizar</button>
+  </aside>
+
+  <main class="center">
+    <div id="homeView"></div>
+    <div id="matchView" style="display:none">
+      <div class="card scoreboard" id="scoreboard"></div>
+      <div class="card panel" id="mainPanel"></div>
+    </div>
+  </main>
+
+  <aside class="right">
+    <div class="card sideNav">
+      <button class="active" data-side="ia">🧠 Campo Live</button>
+      <button data-side="base">📌 Base</button>
+      <button data-side="events">⚡ Eventos</button>
+      <button data-side="lineups">🧩 Escalações</button>
+      <button data-side="table">🏆 Tabela</button>
+      <button data-side="news">📰 Notícias</button>
+    </div>
+    <div class="card sideContent" id="sideContent"></div>
+  </aside>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
