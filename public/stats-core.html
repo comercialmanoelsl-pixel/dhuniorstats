@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DhuniorStats Stats Core</title>
+<style>
+body{font-family:Arial;background:#eef2f7;margin:0;color:#07152f}header{height:52px;background:#fff;border-bottom:1px solid #d7e2ef;display:flex;align-items:center;gap:12px;padding:0 14px}.logo{font-size:22px;font-weight:900}.logo span{color:#ef233c}main{max-width:1150px;margin:18px auto;padding:0 12px}.card{background:#fff;border:1px solid #d7e2ef;border-radius:14px;padding:16px;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}input,select{padding:11px;border:1px solid #d7e2ef;border-radius:10px;font-weight:700;width:100%;box-sizing:border-box}button{padding:11px 14px;border:0;border-radius:10px;background:#ef233c;color:white;font-weight:900;cursor:pointer}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{background:#f8fafc;color:#07152f;border:1px solid #d7e2ef}.row{display:grid;grid-template-columns:140px 1fr 120px 160px;gap:8px;padding:8px;border-top:1px solid #e2e8f0}.pill{display:inline-block;border:1px solid #cbd5e1;border-radius:99px;padding:4px 8px;font-size:12px;font-weight:900}.ok{color:#16a34a}.bad{color:#ef233c}pre{background:#081126;color:#e5e7eb;border-radius:12px;padding:12px;overflow:auto;max-height:360px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="logo">Dhunior<span>Stats</span></div><b>SportMonks Statistics Core V49</b><button onclick="location.href='/'">Voltar</button></header>
+<main>
+<div class="card"><h2>Testar estatísticas avançadas</h2><div class="tabs">
+<button class="tab" onclick="mode='stage';draw()">Stage stats</button>
+<button class="tab" onclick="mode='round';draw()">Round stats</button>
+<button class="tab" onclick="mode='season';draw()">Season por participante</button>
+<button class="tab" onclick="mode='top';draw()">Artilheiros</button>
+<button class="tab" onclick="mode='filters';run()">Filters entity</button>
+</div></div>
+<div class="card" id="form"></div>
+<div id="out"></div>
+</main>
+<script>
+let mode='stage';
+const form=document.getElementById('form'), out=document.getElementById('out');
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function draw(){
+ if(mode==='stage') form.innerHTML='<h3>Stage Statistics</h3><div class=grid><input id=id placeholder="stageId"><input id=inc value="type" placeholder="include"><button onclick="run()">Buscar</button></div>';
+ if(mode==='round') form.innerHTML='<h3>Round Statistics</h3><div class=grid><input id=id placeholder="roundId"><input id=inc value="type" placeholder="include"><button onclick="run()">Buscar</button></div>';
+ if(mode==='season') form.innerHTML='<h3>Season Statistics por participante</h3><div class=grid><select id=part><option value=players>players</option><option value=teams>teams</option><option value=coaches>coaches</option><option value=referees>referees</option></select><input id=id placeholder="seasonId"><input id=inc value="player;team;position"><button onclick="run()">Buscar</button></div>';
+ if(mode==='top') form.innerHTML='<h3>Topscorers por temporada</h3><div class=grid><input id=id placeholder="seasonId"><input id=filters placeholder="ex: seasonTopscorerTypes:208"><button onclick="run()">Buscar</button></div>';
+ out.innerHTML='';
+}
+async function run(){
+ out.innerHTML='<div class=card>Carregando...</div>';
+ try{
+  let url='';
+  if(mode==='filters') url='/api/sportmonks/filters';
+  if(mode==='stage') url='/api/statistics/stage/'+encodeURIComponent(id.value)+'?include='+encodeURIComponent(inc.value||'type');
+  if(mode==='round') url='/api/statistics/round/'+encodeURIComponent(id.value)+'?include='+encodeURIComponent(inc.value||'type');
+  if(mode==='season') url='/api/statistics/season/'+encodeURIComponent(part.value)+'/'+encodeURIComponent(id.value)+'?include='+encodeURIComponent(inc.value||'player;team;position');
+  if(mode==='top') url='/api/topscorers/season/'+encodeURIComponent(id.value)+'?'+(filters.value?'filters='+encodeURIComponent(filters.value):'');
+  const d=await fetch(url+'&_='+Date.now()).then(r=>r.json());
+  if(!d.ok){out.innerHTML='<div class=card><b class=bad>Erro:</b> '+esc(d.error)+'</div>';return}
+  let rows=d.stats||d.rows||d.data||[];
+  out.innerHTML='<div class=card><h2>Total: '+(d.total??rows.length??0)+'</h2>'+renderRows(rows)+'</div><div class=card><h3>RAW</h3><pre>'+esc(JSON.stringify(d,null,2))+'</pre></div>';
+ }catch(e){out.innerHTML='<div class=card><b class=bad>Erro:</b> '+esc(e.message)+'</div>'}
+}
+function renderRows(rows){
+ if(!Array.isArray(rows)) return '<pre>'+esc(JSON.stringify(rows,null,2))+'</pre>';
+ return rows.slice(0,80).map(r=>{
+  if(r.details) return '<div class=row><b>'+esc(r.player||r.team||r.id)+'</b><span>'+esc((r.details||[]).slice(0,5).map(x=>x.name+': '+(x.value??JSON.stringify(x.raw_value))).join(' | '))+'</span><span>'+esc(r.jersey_number||'')+'</span><span>'+esc(r.position||'')+'</span></div>';
+  return '<div class=row><b>'+esc(r.name||r.player||r.type||r.id)+'</b><span>'+esc(r.participant_name||r.team||JSON.stringify(r.value||''))+'</span><span>'+esc(r.numeric??r.total??'')+'</span><span><span class=pill>'+esc(r.type_id||r.type||'')+'</span></span></div>';
+ }).join('');
+}
+draw();
+</script></body></html>
