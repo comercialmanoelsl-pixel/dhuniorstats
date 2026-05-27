@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DhuniorStats Fixture Full V50</title>
+<style>
+body{font-family:Arial;background:#eef2f7;margin:0;color:#07152f}header{height:52px;background:#fff;border-bottom:1px solid #d7e2ef;display:flex;align-items:center;gap:12px;padding:0 14px}.logo{font-size:22px;font-weight:900}.logo span{color:#ef233c}main{max-width:1200px;margin:18px auto;padding:0 12px}.card{background:#fff;border:1px solid #d7e2ef;border-radius:14px;padding:16px;margin-bottom:12px}input{padding:11px;border:1px solid #d7e2ef;border-radius:10px;font-weight:700;width:100%;box-sizing:border-box}button{padding:11px 14px;border:0;border-radius:10px;background:#ef233c;color:white;font-weight:900;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr 180px;gap:10px}.score{display:grid;grid-template-columns:1fr 180px 1fr;gap:12px;align-items:center;text-align:center}.team{font-size:22px;font-weight:900}.stat{display:grid;grid-template-columns:80px 1fr 80px;gap:10px;align-items:center;padding:9px;border-top:1px solid #e2e8f0}.bar{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}.bar span{display:block;height:8px;background:#ef233c}.lineups{display:grid;grid-template-columns:1fr 1fr;gap:12px}.players{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.p{border:1px solid #d7e2ef;border-radius:10px;padding:8px;background:#f8fafc}.p b{display:block}.muted{color:#64748b;font-size:12px}.evt{display:grid;grid-template-columns:70px 120px 1fr;gap:10px;border-top:1px solid #e2e8f0;padding:8px}pre{background:#081126;color:#e5e7eb;border-radius:12px;padding:12px;overflow:auto;max-height:380px}.warn{background:#fff7ed;border:1px solid #fed7aa;padding:10px;border-radius:10px}
+@media(max-width:850px){.grid,.score,.lineups{grid-template-columns:1fr}.players{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="logo">Dhunior<span>Stats</span></div><b>Fixture Full V50</b><button onclick="location.href='/'">Voltar</button></header>
+<main>
+<div class="card"><h2>Teste real por Fixture ID</h2><div class=grid><input id=fixture value="18535517" placeholder="Fixture ID"><input id=filters placeholder="filters opcional. Ex: eventTypes:18,14;fixtureStatisticTypes:42,86,34,45"><button onclick="load()">Buscar</button></div><p class=muted>Usa: participants; events.player; lineups.player.country; statistics.type. Isso é exatamente a lógica dos prints/códigos que você mandou.</p></div>
+<div id=out></div>
+</main>
+<script>
+const out=document.getElementById('out');
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function load(){
+ out.innerHTML='<div class=card>Carregando...</div>';
+ const fid=fixture.value.trim();
+ const params=new URLSearchParams();
+ if(filters.value.trim()) params.set('filters', filters.value.trim());
+ params.set('_', Date.now());
+ const d=await fetch('/api/fixture/full/'+encodeURIComponent(fid)+'?'+params.toString()).then(r=>r.json()).catch(e=>({ok:false,error:e.message}));
+ if(!d.ok){out.innerHTML='<div class=card><b>Erro:</b> '+esc(d.error)+'</div>';return}
+ const n=d.normalized;
+ out.innerHTML = header(n)+stats(n)+lineups(n)+events(n)+raw(d);
+}
+function logo(p){return p?.image_path?'<img src="'+esc(p.image_path)+'" style="width:46px;height:46px;object-fit:contain">':''}
+function header(n){
+ return '<div class=card><div class=score><div>'+logo(n.home)+'<div class=team>'+esc(n.home?.name||'Casa')+'</div></div><div><h1>'+esc(n.fixture.name)+'</h1><div>'+esc(n.fixture.starting_at||'')+'</div><b>'+esc(n.fixture.result_info||'')+'</b></div><div>'+logo(n.away)+'<div class=team>'+esc(n.away?.name||'Fora')+'</div></div></div></div>'
+}
+function stats(n){
+ if(!n.stats.length) return '<div class=card><h2>Estatísticas</h2><div class=warn>Sem estatísticas retornadas para essa fixture.</div></div>';
+ return '<div class=card><h2>Estatísticas reais</h2>'+n.stats.map(s=>{
+  const hv=Number(s.home||0), av=Number(s.away||0), total=Math.max(hv+av,1), pct=Math.round((hv/total)*100);
+  return '<div class=stat><b>'+esc(s.home??'-')+'</b><div><div style="text-align:center;font-weight:900">'+esc(s.name)+'</div><div class=bar><span style="width:'+pct+'%"></span></div></div><b style="text-align:right">'+esc(s.away??'-')+'</b></div>'
+ }).join('')+'</div>';
+}
+function playerCard(p){
+ return '<div class=p><b>#'+esc(p.jersey_number||'')+' '+esc(p.player_name||'Sem nome')+'</b><span class=muted>'+esc(p.is_bench?'Banco':'Titular')+' · '+esc(p.formation_field||'sem campo')+' · '+esc(p.country||'')+'</span></div>'
+}
+function groupPlayers(list,title){
+ const starters=list.filter(x=>x.is_starting), bench=list.filter(x=>x.is_bench), rest=list.filter(x=>!x.is_starting&&!x.is_bench);
+ return '<div><h3>'+esc(title)+'</h3><h4>Titulares</h4><div class=players>'+starters.map(playerCard).join('')+'</div><h4>Banco</h4><div class=players>'+bench.map(playerCard).join('')+'</div>'+(rest.length?'<h4>Outros</h4><div class=players>'+rest.map(playerCard).join('')+'</div>':'')+'</div>'
+}
+function lineups(n){
+ const l=n.lineups;
+ let msg='';
+ if(l.unknown.length) msg='<div class=warn>Há '+l.unknown.length+' jogadores sem team_id casado com home/away. Eles aparecem separados para evitar escalação invertida.</div>';
+ return '<div class=card><h2>Escalações separadas corretamente</h2>'+msg+'<div class=lineups>'+groupPlayers(l.home,n.home?.name||'Casa')+groupPlayers(l.away,n.away?.name||'Fora')+'</div>'+(l.unknown.length?'<h3>Não identificados</h3><div class=players>'+l.unknown.map(playerCard).join('')+'</div>':'')+'</div>'
+}
+function events(n){
+ if(!n.events.length) return '<div class=card><h2>Eventos</h2><div class=warn>Sem eventos.</div></div>';
+ return '<div class=card><h2>Eventos</h2>'+n.events.map(e=>'<div class=evt><b>'+esc(e.minute)+"'</b><span>"+esc(e.side||'')+'</span><span><b>'+esc(e.type)+'</b> '+esc(e.player)+' '+(e.related_player?'→ '+esc(e.related_player):'')+' '+esc(e.result||'')+'</span></div>').join('')+'</div>'
+}
+function raw(d){return '<div class=card><h2>RAW normalizado</h2><pre>'+esc(JSON.stringify(d.normalized,null,2))+'</pre></div>'}
+load();
+</script></body></html>
