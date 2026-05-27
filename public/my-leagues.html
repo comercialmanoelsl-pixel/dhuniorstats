@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DhuniorStats Ligas</title>
+<style>body{font-family:Arial;background:#eef2f7;margin:0;color:#08172f}header{height:52px;background:#fff;border-bottom:1px solid #d8e2ef;display:flex;align-items:center;gap:10px;padding:0 14px}.logo{font-size:22px;font-weight:900}.logo span{color:#ef233c}main{max-width:1100px;margin:18px auto;padding:0 12px}.card{background:#fff;border:1px solid #d8e2ef;border-radius:14px;padding:16px;margin-bottom:12px}input{padding:11px;border:1px solid #d8e2ef;border-radius:10px;font-weight:700}button{padding:11px 14px;border:0;border-radius:10px;background:#ef233c;color:white;font-weight:900}.league{border:1px solid #d8e2ef;border-radius:12px;padding:12px;margin:10px 0}.ok{color:#16a34a;font-weight:900}.bad{color:#ef233c;font-weight:900}.fx{padding:8px;border-top:1px solid #e2e8f0}</style></head><body>
+<header><div class="logo">Dhunior<span>Stats</span></div><b>Auditoria das Ligas Contratadas</b><button onclick="location.href='/'">Voltar</button></header>
+<main><div class="card"><h2>My Leagues V48</h2><p>Confere se o site está buscando as 5 ligas do seu plano: Série A, Copa do Brasil, Premier League, Sul-Americana e Libertadores.</p><input type="date" id="date"><button onclick="go()">Auditar</button></div><div id="out"></div></main>
+<script>
+const out=document.getElementById('out');date.value=new Date().toISOString().slice(0,10);
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function go(){
+ out.innerHTML='<div class=card>Carregando...</div>';
+ const d=await fetch('/api/my-leagues/audit?date='+date.value+'&_='+Date.now()).then(r=>r.json());
+ if(!d.ok){out.innerHTML='<div class=card><b class=bad>Erro:</b> '+esc(d.error)+'</div>';return}
+ out.innerHTML='<div class=card><h2>Total em ligas contratadas: '+d.totalFromSubscribed+'</h2></div>'+d.found.map(l=>'<div class=league><h3>'+esc(l.name)+' <small>ID '+l.id+'</small> '+(l.count?'<span class=ok>'+l.count+' jogos</span>':'<span class=bad>0 jogos</span>')+'</h3>'+l.fixtures.map(f=>'<div class=fx><b>'+esc(f.name)+'</b><br><small>'+esc(f.date)+' · '+esc(f.state)+'</small></div>').join('')+'</div>').join('');
+}
+go();
+</script></body></html>
